@@ -1,6 +1,6 @@
-#=============================================
-# Simple example fitting a noisy sine wave
-#=============================================
+#=============================================================
+# Simple example fitting a noisy sine wave using standard gpr
+#=============================================================
 
 import torch
 torch.set_default_tensor_type(torch.DoubleTensor)
