@@ -1,6 +1,7 @@
-#=============================================
+#===================================================
 # Fitting gpr_known_noise via interactive plot
-#=============================================
+# CONSIDER CONVERTING THIS TO A JUPYTER NOTEBOOK!
+#===================================================
 
 import torch
 torch.set_default_tensor_type(torch.DoubleTensor)
