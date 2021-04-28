@@ -33,6 +33,7 @@ class gaussian_process_regressor:
         #===============================================================================================================================================
         # Something wrong with normalization. Leads to horrible predictions when normalization turned on. Check gpedm/interactive/example.py
         # Consider removing normalization as this breaks the flow of the rest of the code. Normalization can be done externally. See gpr_known_noise
+        # CONSIDER MERGING THIS WITH GPR_KNOWN_NOISE.PY WITH AN OPTION TO KEEP NOISE STATIC. DO THIS ONLY AFTER FIXING NORMALIZATION PROBLEM
         #===============================================================================================================================================
         self.normalize_x=normalize_x
         self.normalize_y=normalize_y

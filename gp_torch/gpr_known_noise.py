@@ -27,14 +27,11 @@ class gaussian_process_regressor:
         self.prior = prior
         self.n_restarts_optimizer = n_restarts_optimizer
         #========================================================================================================================================
-        # Removed option to normalize. However results seem to not be scale independent. Could this be because of differences between x and y ranges? Actually, could be due to adding training points after self.x_train_std was calculated
+        # Removed option to normalize. However results seem to not be scale independent. Could this be because of differences between x and y ranges? Actually, could be due to adding training points after self.x_train_std was calculated. CONSIDER MERGING THIS WITH GPR.PY WITH AN OPTION TO KEEP NOISE STATIC. DO THIS ONLY AFTER FIXING NORMALIZATION PROBLEM IN GPR.PY
         #========================================================================================================================================
         self.x_train_std, self.x_train_mean = torch.std_mean(x_train, axis=0)
         if torch.isnan(self.x_train_std):
             self.x_train_std = torch.ones(x_train.shape[1])
-        self.y_train_std, self.y_train_mean = torch.std_mean(y_train, axis=0)
-        if torch.isnan(self.y_train_std):
-            self.y_train_std = torch.ones(y_train.shape[1])
         
         if self.prior=='ard' and self.kernel=='sq_exp': #generalize this later on
             #self.prior_phi = torch.distributions.half_normal.HalfNormal(torch.tensor([torch.pi/torch.sqrt(torch.tensor(12.))])) # Has zero probability for phi < 0., this is problematic when phi close to zero
@@ -96,6 +93,14 @@ class gaussian_process_regressor:
         """
         Optimize parameters to minimize self.objective_function()
         """
+        if self.x_train.shape[0] != self.n_train:
+            self.n_train = self.x_train.shape[0]
+            self.x_train_std, self.x_train_mean = torch.std_mean(self.x_train, axis=0)
+            if torch.isnan(self.x_train_std):
+                self.x_train_std = torch.ones(self.x_train.shape[1])
+            if self.prior=='ard' and self.kernel=='sq_exp': #generalize this later on
+                self.phi_std = self.x_train_std*torch.sqrt(torch.pi/torch.sqrt(torch.tensor(12.)))
+        
         for t in range(iterations):
             objective = self.objective_function()
             if t%1000 == 0:
