@@ -34,7 +34,8 @@ class gaussian_process_regressor:
             print("Setting internal normalization of x_train and y_train to True to be consistent with ARD prior specs")
 
         if self.prior=='ard' and self.kernel=='sq_exp': #generalize this later on
-            self.prior_phi = torch.distributions.half_normal.HalfNormal(torch.tensor([torch.pi/torch.sqrt(torch.tensor(12.))]))
+            #self.prior_phi = torch.distributions.half_normal.HalfNormal(torch.tensor([torch.pi/torch.sqrt(torch.tensor(12.))])) # Has zero probability for phi < 0., this is problematic when phi close to zero
+            self.prior_phi = torch.distributions.normal.Normal(0.,torch.tensor([torch.pi/torch.sqrt(torch.tensor(12.))]))
             self.prior_tau2 = torch.distributions.gamma.Gamma(torch.tensor([1.]),torch.tensor([1.])) #Note torch Gamma parameterized by alpha (shape) and beta (rate, not scale)
             self.prior_noise2 = torch.distributions.gamma.Gamma(torch.tensor([1.]),torch.tensor([1.])) #beta(a=1.1,b=1.1) causes log_prior = -inf at initial_noise2=1.
         

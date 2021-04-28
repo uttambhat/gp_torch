@@ -33,5 +33,8 @@ def covariance(X,phi,tau2):
         x=X[0]
         y=X[1]
     
-    return tau2*torch.exp(-0.5*((torch.cdist(x*phi,y*phi))**2))
+    result = tau2*torch.exp(-0.5*((torch.cdist(x*phi,y*phi))**2))
+    n = result.shape[0]
+    result.view(1,-1)[:,::n+1] += 1.e-5
+    return result
 
