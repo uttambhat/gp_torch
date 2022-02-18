@@ -13,7 +13,7 @@ y_train = 1.*(torch.sin(x_train*20.) + 0.1*torch.randn(x_train.shape))
 
 # Define model and optimize parameters
 model = gaussian_process_regressor(x_train,y_train,prior='ard') #priors = None, 'ard'
-model.optimize(iterations=30000)
+model.optimize(iterations=200)
 
 # Predict y for x_train (you may define a separate x_test to perform out-of-sample prediction
 y_pred = model.predict(x_train)

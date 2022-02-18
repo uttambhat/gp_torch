@@ -23,7 +23,8 @@ class gaussian_process_regressor:
         self.phi = torch.ones(x_train.shape[1], requires_grad=True)
         self.tau = torch.tensor(1.,requires_grad=True)
         self.noise = torch.tensor(1.e-5,requires_grad=True)
-        self.optimizer = torch.optim.Adam([self.phi,self.tau,self.noise], lr=0.001)
+        #self.optimizer = torch.optim.Adam([self.phi,self.tau,self.noise], lr=0.001)
+        self.optimizer = torch.optim.Rprop([self.phi,self.tau,self.noise], lr=0.1, etas=(0.5,1.2),step_sizes=(1.e-6,50))
         self.prior = prior
         self.n_restarts_optimizer = n_restarts_optimizer
         self.normalize_x=normalize_x
@@ -112,7 +113,7 @@ class gaussian_process_regressor:
         else:
             return y_mean
     
-    def optimize(self,iterations=10000):
+    def optimize(self,iterations=200):
         """
         Optimize parameters to minimize self.objective_function()
         """
