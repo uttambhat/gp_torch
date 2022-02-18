@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 # Create training data. 2d tensors necessary
 x_train = torch.arange(0.,1.,0.01).reshape(-1,1)
-y_train = 1.*(torch.sin(x_train*20.) + 0.1*torch.randn(x_train.shape))
+y_train = 10.*(torch.sin(x_train*20.) + 0.1*torch.randn(x_train.shape))
 
 # Define model and optimize parameters
 model = gaussian_process_regressor(x_train,y_train,prior='ard') #priors = None, 'ard'

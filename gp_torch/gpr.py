@@ -23,7 +23,6 @@ class gaussian_process_regressor:
         self.phi = torch.ones(x_train.shape[1], requires_grad=True)
         self.tau = torch.tensor(1.,requires_grad=True)
         self.noise = torch.tensor(1.e-5,requires_grad=True)
-        #self.optimizer = torch.optim.Adam([self.phi,self.tau,self.noise], lr=0.001)
         self.optimizer = torch.optim.Rprop([self.phi,self.tau,self.noise], lr=0.1, etas=(0.5,1.2),step_sizes=(1.e-6,50))
         self.prior = prior
         self.n_restarts_optimizer = n_restarts_optimizer
@@ -117,11 +116,17 @@ class gaussian_process_regressor:
         """
         Optimize parameters to minimize self.objective_function()
         """
+        objective_prev = 1.e100
         for t in range(iterations):
             objective = self.objective_function()
-            if t%1000 == 0:
+            if t%(iterations/10) == 0:
                 print(t,objective.item())
+            if torch.abs(objective_prev/objective-1.)<1.e-8:
+                print(t,objective.item())
+                break
+            objective_prev = objective
             self.optimizer.zero_grad()
             objective.backward()
             self.optimizer.step()
+            
 

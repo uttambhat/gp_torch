@@ -33,7 +33,7 @@ def onclick(event):
     model.x_train = torch.cat((model.x_train,torch.tensor([[x]])))
     model.y_train = torch.cat((model.y_train,torch.tensor([[y]])))
     model.noise = torch.cat((model.noise,torch.tensor([noise])))
-    model.optimize(iterations=1000)
+    model.optimize(iterations=100)
     print(model.phi.detach(),model.tau.detach(),model.noise)
     del ax.lines[-1]
     del ax.collections[-1]
