@@ -22,7 +22,7 @@ class gaussian_process_regressor:
         self.x_dim = x_train.shape[1]
         self.phi = torch.ones(x_train.shape[1], requires_grad=True)
         self.tau = torch.tensor(1.,requires_grad=True)
-        self.noise = torch.ones(x_train.shape[0])*1.e-5
+        self.noise = torch.ones(x_train.shape[0])*1.e-1 # Noise is different from other gprs!
         self.optimizer = torch.optim.Adam([self.phi,self.tau], lr=0.001)
         self.prior = prior
         self.n_restarts_optimizer = n_restarts_optimizer
@@ -36,9 +36,9 @@ class gaussian_process_regressor:
         if self.prior=='ard' and self.kernel=='sq_exp': #generalize this later on
             #self.prior_phi = torch.distributions.half_normal.HalfNormal(torch.tensor([torch.pi/torch.sqrt(torch.tensor(12.))])) # Has zero probability for phi < 0., this is problematic when phi close to zero
             #===========================================================
-            # DOESN'T WORK FOR MULTIVARIATE X!! Needs to be fixed
+            # DOESN'T WORK FOR MULTIVARIATE X!! Needs to be fixed (removed self.x_train_std*) in the line below
             #===========================================================
-            self.phi_std = self.x_train_std*torch.sqrt(torch.pi/torch.sqrt(torch.tensor(12.)))
+            self.phi_std = torch.sqrt(torch.pi/torch.sqrt(torch.tensor(12.)))
             self.prior_phi = torch.distributions.normal.Normal(0.,torch.tensor([self.phi_std]))
             self.prior_tau2 = torch.distributions.gamma.Gamma(torch.tensor([1.]),torch.tensor([1.])) #Note torch Gamma parameterized by alpha (shape) and beta (rate, not scale)
         

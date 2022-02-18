@@ -22,30 +22,22 @@ class gaussian_process_regressor:
         self.x_dim = x_train.shape[1]
         self.phi = torch.ones(x_train.shape[1], requires_grad=True)
         self.tau = torch.tensor(1.,requires_grad=True)
-        #=============================================================================================================================================
-        # Something wrong with noise. Check gpedm/interactive/example.py. Fixing noise to a static (unoptimizable) value leads to reasonable outputs. 
-        # But leaving noise as trainable leads to strange outputs
-        #=============================================================================================================================================
         self.noise = torch.tensor(1.e-5,requires_grad=True)
         self.optimizer = torch.optim.Adam([self.phi,self.tau,self.noise], lr=0.001)
         self.prior = prior
         self.n_restarts_optimizer = n_restarts_optimizer
-        #===============================================================================================================================================
-        # Something wrong with normalization. Leads to horrible predictions when normalization turned on. Check gpedm/interactive/example.py
-        # Consider removing normalization as this breaks the flow of the rest of the code. Normalization can be done externally. See gpr_known_noise
-        # CONSIDER MERGING THIS WITH GPR_KNOWN_NOISE.PY WITH AN OPTION TO KEEP NOISE STATIC. DO THIS ONLY AFTER FIXING NORMALIZATION PROBLEM
-        #===============================================================================================================================================
         self.normalize_x=normalize_x
         self.normalize_y=normalize_y
-        #if self.prior=='ard' and (self.normalize_x==False or self.normalize_y==False):
-        #    self.normalize_x=True
-        #    self.normalize_y=True
-        #    print("Setting internal normalization of x_train and y_train to True to be consistent with ARD prior specs")
+        if self.prior=='ard' and (self.normalize_x==False or self.normalize_y==False):
+            self.normalize_x=True
+            self.normalize_y=True
+            print("Setting internal normalization of x_train and y_train to True to be consistent with ARD prior specs")
+            # NOTE: Normalizing is very important for ARD to work
         
         # Normalize x and y (zero mean, unit variance per column)
         if self.normalize_x:
             self.x_train_std, self.x_train_mean = torch.std_mean(x_train, axis=0)
-            if torch.isnan(self.x_train_std):
+            if torch.all(torch.isnan(self.x_train_std)):
                 self.x_train_std = 1.
             self.x_train = (self.x_train - self.x_train_mean)/self.x_train_std
         else:
@@ -53,7 +45,7 @@ class gaussian_process_regressor:
             self.x_train_std = torch.ones(x_train.shape[1])
         if self.normalize_y:
             self.y_train_std, self.y_train_mean = torch.std_mean(y_train, axis=0)
-            if torch.isnan(self.y_train_std):
+            if torch.all(torch.isnan(self.y_train_std)):
                 self.y_train_std = 1.
             self.y_train = (self.y_train - self.y_train_mean)/self.y_train_std            
         else:
@@ -68,7 +60,7 @@ class gaussian_process_regressor:
                 phi_std = self.x_train_std*torch.sqrt(torch.pi/torch.sqrt(torch.tensor(12.)))
             self.prior_phi = torch.distributions.normal.Normal(0.,torch.tensor([phi_std]))
             self.prior_tau2 = torch.distributions.gamma.Gamma(torch.tensor([1.]),torch.tensor([1.])) #Note torch Gamma parameterized by alpha (shape) and beta (rate, not scale)
-            self.prior_noise2 = torch.distributions.gamma.Gamma(torch.tensor([1.]),torch.tensor([1.])) #beta(a=1.1,b=1.1) causes log_prior = -inf at initial_noise2=1.
+            self.prior_noise2 = torch.distributions.beta.Beta(torch.tensor([1.1]),torch.tensor([1.1])) #beta(a=1.1,b=1.1) causes log_prior = -inf at initial_noise2=1.; alternate - Gamma(torch.tensor([1.]),torch.tensor([1.]))
         
         
     
