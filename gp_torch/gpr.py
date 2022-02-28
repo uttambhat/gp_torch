@@ -11,7 +11,7 @@ class gaussian_process_regressor:
     def __init__(self,x_train=torch.ones((0,1)),y_train=torch.zeros((0,1)),kernel='sq_exp',optimizer='Adam',prior='ard',normalize_x=False,normalize_y=False,n_restarts_optimizer = 0):
         """
         Creates the model.
-        Currently the rest of this file assumes a squared-exponential kernel, Adam optimizer and n_restarts_optimizer = 0.
+        Currently the rest of this file assumes a squared-exponential kernel, Rprop optimizer and n_restarts_optimizer = 0.
         The arguments are just placeholders for future extensions
         """
         super().__init__()
